@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.ChangeTracking;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using Moq;
 
@@ -35,6 +36,31 @@ namespace TodoListApp.UnitTest.RepositoryTests
             var result = await _repository.AddAsync(newItem);
 
             Assert.AreEqual(newItem, result, "Expected added item to be returned.");
+        }
+
+        [Test]
+        public async Task GetById_ExistingId_ReturnsItem()
+        {
+            var existingItem = new TodoItem { Id = 1, Title = "Existing Task." };
+
+            _dbContext.Setup(db => db.Items.FindAsync(1)).ReturnsAsync(existingItem);
+
+            var result = await _repository.GetById(existingItem.Id);
+
+            Assert.AreEqual(existingItem, result, "Expected item with existing id.");
+        }
+
+        [Test]
+        public async Task GetById_NonExistentId_ReturnsNull()
+        {
+            int nonExistentId = 9999;
+
+            _dbContext.Setup(db => db.Items.FindAsync(nonExistentId))
+                .ReturnsAsync(null as TodoItem);
+
+            var result = await _repository.GetById(nonExistentId);
+
+            Assert.IsNull(result, "Expected null result for non-existent id.");
         }
     }
 }
