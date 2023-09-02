@@ -73,5 +73,17 @@ namespace TodoListApp.UnitTest.ServiceTests
 
             Assert.AreEqual(newItem, result, "Expected added item to be returned.");
         }
+
+        [Test]
+        public async Task UpdateAsync_Existingitem_UpdatesItem()
+        {
+            var existingItem = new TodoItem() { Id = 1, Title = "Expected Task" };
+
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingItem));
+
+            await _service.UpdateAsync(existingItem);
+
+            _repositoryMock.Verify(repo => repo.UpdateAsync(existingItem), Times.Once);
+        }
     }
 }
