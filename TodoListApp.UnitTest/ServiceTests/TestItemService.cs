@@ -61,5 +61,17 @@ namespace TodoListApp.UnitTest.ServiceTests
 
             Assert.IsNull(result, "Expected null result for non-existent ID.");
         }
+
+        [Test]
+        public async Task AddAsync_ValidItem_ReturnsAddedItem()
+        {
+            var newItem = new TodoItem { Id = 4, Title = "New Task" };
+
+            _repositoryMock.Setup(repo => repo.AddAsync(newItem)).ReturnsAsync(newItem);
+
+            var result = await _service.AddAsync(newItem);
+
+            Assert.AreEqual(newItem, result, "Expected added item to be returned.");
+        }
     }
 }
