@@ -117,5 +117,46 @@ namespace TodoListApp.UnitTest.RepositoryTests
 
             _dbContext.Verify(db => db.SaveChangesAsync(default), Times.Once);
         }
+
+
+        [Test]
+        public async Task DeleteAllAsync_CallsDbContextSaveChanges()
+        {
+            // Arrange
+            var mockDbSet = new Mock<DbSet<TodoItem>>();
+
+            // Create a list of items to represent existing items
+            var existingItems = new List<TodoItem>
+            {
+                new TodoItem { Id = 1, Title = "Task 1" },
+                new TodoItem { Id = 2, Title = "Task 2" },
+                new TodoItem { Id = 3, Title = "Task 3" },
+            };
+
+            // Set up the mock DbSet to represent existing items
+            mockDbSet.As<IQueryable<TodoItem>>().Setup(m => m.Provider).Returns(existingItems.AsQueryable().Provider);
+            mockDbSet.As<IQueryable<TodoItem>>().Setup(m => m.Expression).Returns(existingItems.AsQueryable().Expression);
+            mockDbSet.As<IQueryable<TodoItem>>().Setup(m => m.ElementType).Returns(existingItems.AsQueryable().ElementType);
+            mockDbSet.As<IQueryable<TodoItem>>().Setup(m => m.GetEnumerator()).Returns(existingItems.GetEnumerator());
+
+            // Define a custom TestAsyncEnumerator for mocking ToListAsync
+            var testAsyncEnumerator = new TestAsyncEnumerator<TodoItem>(existingItems.GetEnumerator());
+            mockDbSet.As<IAsyncEnumerable<TodoItem>>()
+                .Setup(m => m.GetAsyncEnumerator(It.IsAny<CancellationToken>()))
+                .Returns(testAsyncEnumerator);
+
+            // Set up the repository to use the mock DbSet
+            _dbContext.Setup(db => db.Items).Returns(mockDbSet.Object);
+
+            // Mock the DeleteAllAsync method to return the number of items deleted
+            _dbContext.Setup(db => db.SaveChangesAsync(default)).ReturnsAsync(3); // Assuming all items are deleted
+
+            // Act
+            var result = await _repository.DeleteAllAsync();
+
+            // Assert
+            Assert.AreEqual(3, result); // Verify that the correct number of items is deleted
+            _dbContext.Verify(db => db.SaveChangesAsync(default), Times.Once);
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace ToDoList.Repository
         Task<T> AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
-        Task DeleteAllAsync();
+        Task<int> DeleteAllAsync();
     }
 
     public class ItemRepository : IRepository<TodoItem>
@@ -37,11 +37,11 @@ namespace ToDoList.Repository
             return entity;
         }
 
-        public async Task DeleteAllAsync()
+        public async Task<int> DeleteAllAsync()
         {
             var items = await _dbContext.Items.ToListAsync();
             _dbContext.Items.RemoveRange(items);
-            await _dbContext.SaveChangesAsync();
+            return await _dbContext.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(TodoItem entity)
