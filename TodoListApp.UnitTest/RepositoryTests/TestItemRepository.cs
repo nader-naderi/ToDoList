@@ -11,6 +11,7 @@ using ToDoList.Repository;
 
 namespace TodoListApp.UnitTest.RepositoryTests
 {
+
     [TestFixture]
     internal class TestItemRepository
     {
@@ -62,5 +63,36 @@ namespace TodoListApp.UnitTest.RepositoryTests
 
             Assert.IsNull(result, "Expected null result for non-existent id.");
         }
+
+        [Test]
+        public async Task GetAllAsync_ReturnsAllItems()
+        {
+            var expectedItems = new List<TodoItem>
+            {
+                new TodoItem { Id = 1, Title = "Task 1" },
+                new TodoItem { Id = 2, Title = "Task 2" },
+                new TodoItem { Id = 3, Title = "Task 3" },
+            }.AsQueryable();
+
+            var mockDbSet = new Mock<DbSet<TodoItem>>();
+
+            mockDbSet.As<IQueryable<TodoItem>>().Setup(m => m.Provider).Returns(expectedItems.Provider);
+            mockDbSet.As<IQueryable<TodoItem>>().Setup(m => m.Expression).Returns(expectedItems.Expression);
+            mockDbSet.As<IQueryable<TodoItem>>().Setup(m => m.ElementType).Returns(expectedItems.ElementType);
+            mockDbSet.As<IQueryable<TodoItem>>().Setup(m => m.GetEnumerator()).Returns(() => expectedItems.GetEnumerator());
+
+            // Define a custom TestAsyncEnumerator for mocking ToListAsync
+            var testAsyncEnumerator = new TestAsyncEnumerator<TodoItem>(expectedItems.GetEnumerator());
+            mockDbSet.As<IAsyncEnumerable<TodoItem>>()
+                .Setup(m => m.GetAsyncEnumerator(It.IsAny<CancellationToken>()))
+                .Returns(testAsyncEnumerator);
+
+            _dbContext.Setup(db => db.Items).Returns(mockDbSet.Object);
+
+            var result = await _repository.GetAllAsync();
+
+            CollectionAssert.AreEqual(expectedItems.ToList(), result.ToList(), "Expected items do not match.");
+        }
+
     }
 }
