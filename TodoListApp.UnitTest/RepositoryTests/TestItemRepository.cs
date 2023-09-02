@@ -105,5 +105,17 @@ namespace TodoListApp.UnitTest.RepositoryTests
 
             _dbContext.Verify(db => db.SaveChangesAsync(default), Times.Once);
         }
+
+        [Test]
+        public async Task DeleteAsync_ExistingItem_DeletesItem()
+        {
+            var existingItem = new TodoItem { Id = 1, Title = "Existing Task" };
+
+            _dbContext.Setup(db => db.Items.Remove(existingItem));
+
+            await _repository.DeleteAsync(existingItem);
+
+            _dbContext.Verify(db => db.SaveChangesAsync(default), Times.Once);
+        }
     }
 }
