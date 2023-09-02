@@ -10,19 +10,19 @@ using ToDoList.Controllers;
 using ToDoList.Entities;
 using ToDoList.Services;
 
-namespace TodoListApp.UnitTest
+namespace TodoListApp.UnitTest.ControllerTests
 {
     [TestFixture]
     public class TestItemController
     {
-        private ItemController controller;
-        private Mock<IService<TodoItem>> itemServiceMock;
+        private ItemController _controller;
+        private Mock<IService<TodoItem>> _serviceMock;
 
         [SetUp]
         public void Setup()
         {
-            itemServiceMock = new Mock<IService<TodoItem>>();
-            controller = new ItemController(itemServiceMock.Object);
+            _serviceMock = new Mock<IService<TodoItem>>();
+            _controller = new ItemController(_serviceMock.Object);
         }
 
         [Test]
@@ -30,10 +30,10 @@ namespace TodoListApp.UnitTest
         {
             var validItem = new TodoItem { Id = 1, Title = "Test Subject 11" };
 
-            itemServiceMock.Setup(service => service.AddAsync(validItem))
+            _serviceMock.Setup(service => service.AddAsync(validItem))
                 .ReturnsAsync(validItem);
 
-            var result = await controller.Post(validItem);
+            var result = await _controller.Post(validItem);
 
             Assert.IsInstanceOf<OkObjectResult>(result.Result);
         }
@@ -44,10 +44,10 @@ namespace TodoListApp.UnitTest
             var itemId = 900001;
 
             // What should i return when the getbyid method is called?
-            itemServiceMock.Setup(service => service.GetById(itemId))
+            _serviceMock.Setup(service => service.GetById(itemId))
                 .ReturnsAsync(null as TodoItem);
 
-            var result = await controller.Get(itemId);
+            var result = await _controller.Get(itemId);
 
             Assert.IsInstanceOf<NotFoundResult>(result.Result);
         }
@@ -61,10 +61,10 @@ namespace TodoListApp.UnitTest
         {
             // Arrange.
             var item = new TodoItem { Id = id, Title = "Test Subject." };
-            itemServiceMock.Setup(service => service.GetById(id)).ReturnsAsync(item);
+            _serviceMock.Setup(service => service.GetById(id)).ReturnsAsync(item);
 
             // Act
-            var result = controller.Get(id);
+            var result = _controller.Get(id);
 
             // Assert
             Assert.IsInstanceOf<OkObjectResult>(result.Result.Result);
@@ -77,7 +77,7 @@ namespace TodoListApp.UnitTest
         public void GetItem_OnNoUser_ReturnsNotFound(int id)
         {
             // Act
-            var result = controller.Get(id);
+            var result = _controller.Get(id);
 
             // Assert
             Assert.That(result.Result.Result, Is.InstanceOf<NotFoundResult>(), "Expected an Not Found result.");
@@ -86,10 +86,8 @@ namespace TodoListApp.UnitTest
         [Test]
         public void GetAllItem_OnSuccess_ReturnsOK()
         {
-            // Arrange
-
             // Act
-            var result = controller.GetAll();
+            var result = _controller.GetAll();
 
             // Assert
             Assert.That(result.Result.Result, Is.InstanceOf<OkObjectResult>(), "Expected an OK result.");
