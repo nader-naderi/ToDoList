@@ -17,9 +17,9 @@ namespace ToDoList.Repository
 
     public class ItemRepository : IRepository<TodoItem>
     {
-        private readonly ItemDbContext _dbContext;
+        private readonly IItemDbContext _dbContext;
 
-        public ItemRepository(ItemDbContext dbContext)
+        public ItemRepository(IItemDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -72,8 +72,8 @@ namespace ToDoList.Repository
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            _dbContext.Entry(entity).State = EntityState.Modified;
-            await _dbContext.SaveChangesAsync();
+            _dbContext.SetEntityStateModified(entity);
+            await _dbContext.SaveChangesAsync();    
         }
     }
 }

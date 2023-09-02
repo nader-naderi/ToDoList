@@ -6,6 +6,7 @@ using ToDoList.Services;
 
 namespace TodoListApp.UnitTest.ServiceTests
 {
+    [TestFixture]
     internal class TestItemService
     {
         private ItemService _service;
