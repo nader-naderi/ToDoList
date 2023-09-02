@@ -36,5 +36,20 @@ namespace TodoListApp.UnitTest.ServiceTests
 
             CollectionAssert.AreEqual(expectedItems, result, "Expected items do not match.");
         }
+
+        [Test]
+        [TestCase(1, "Test Task 1")]
+        [TestCase(2, "Test Task 2")]
+        [TestCase(3, "Test Task 3")]
+        public async Task GetById_ValidId_ReturnsItem(int id, string title)
+        {
+            var expectedItems = new TodoItem() { Id = id, Title = title };
+
+            _repositoryMock.Setup(repo => repo.GetById(expectedItems.Id)).ReturnsAsync(expectedItems);
+
+            var result = await _service.GetById(expectedItems.Id);
+
+            Assert.AreEqual(expectedItems, result, "Expected item does not match.");
+        }
     }
 }
