@@ -97,5 +97,15 @@ namespace TodoListApp.UnitTest.ServiceTests
 
             _repositoryMock.Verify(repo => repo.DeleteAsync(existingItem), Times.Once);
         }
+
+        [Test]
+        public async Task DeleteAllAsync_CallsRepositoryDeleteAll()
+        {
+            _repositoryMock.Setup(repo => repo.DeleteAllAsync());
+
+            await _service.DeleteAllAsync();
+
+            _repositoryMock.Verify(repo => repo.DeleteAllAsync(), Times.Once);
+        }
     }
 }
