@@ -1,7 +1,5 @@
 ﻿using Moq;
-
 using NUnit.Framework;
-
 using ToDoList.Entities;
 using ToDoList.Repository;
 using ToDoList.Services;
@@ -50,6 +48,18 @@ namespace TodoListApp.UnitTest.ServiceTests
             var result = await _service.GetById(expectedItems.Id);
 
             Assert.AreEqual(expectedItems, result, "Expected item does not match.");
+        }
+
+        [Test]
+        public async Task GetById_NonExistenceId_ReturnsNull()
+        {
+            int nonExistentId = 9999;
+
+            _repositoryMock.Setup(repo => repo.GetById(nonExistentId)).ReturnsAsync(value: null);
+
+            var result = await _service.GetById(nonExistentId);
+
+            Assert.IsNull(result, "Expected null result for non-existent ID.");
         }
     }
 }
