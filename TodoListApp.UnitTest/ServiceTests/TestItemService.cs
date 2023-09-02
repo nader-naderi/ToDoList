@@ -85,5 +85,17 @@ namespace TodoListApp.UnitTest.ServiceTests
 
             _repositoryMock.Verify(repo => repo.UpdateAsync(existingItem), Times.Once);
         }
+
+        [Test]
+        public async Task DeleteAsync_ExistingItem_DeletesItem()
+        {
+            var existingItem = new TodoItem() { Id = 1, Title = "Existing Task." };
+
+            _repositoryMock.Setup(repo => repo.DeleteAsync(existingItem));
+
+            await _service.DeleteAsync(existingItem);
+
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingItem), Times.Once);
+        }
     }
 }
