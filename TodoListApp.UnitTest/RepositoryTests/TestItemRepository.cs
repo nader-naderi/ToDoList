@@ -94,5 +94,16 @@ namespace TodoListApp.UnitTest.RepositoryTests
             CollectionAssert.AreEqual(expectedItems.ToList(), result.ToList(), "Expected items do not match.");
         }
 
+        [Test]
+        public async Task UpdateAsync_ExistingItem_UpdatesItem()
+        {
+            var existingItem = new TodoItem() { Id = 1, Title = "Existing Task", };
+
+            _dbContext.Setup(db => db.Items.Update(existingItem));
+
+            await _repository.UpdateAsync(existingItem);
+
+            _dbContext.Verify(db => db.SaveChangesAsync(default), Times.Once);
+        }
     }
 }
